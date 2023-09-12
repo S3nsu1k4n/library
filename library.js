@@ -8,10 +8,10 @@ dialog_form = document.querySelector(".dialog-form")
 
 new_book_button.addEventListener("click", () => {
   dialog.showModal();
+  console.log(myLibrary);
 })
 
 dialog_button.addEventListener("click", (e) => {
-  output_section.innerHTML = '';
   addBookToLibrary();
   e.preventDefault();
   dialog.close();
@@ -19,13 +19,15 @@ dialog_button.addEventListener("click", (e) => {
 
 const myLibrary = [];
 
+let index = 1
 class Book {
   constructor(title, author, pages, already_read) {
+    this.index = index++
     this.title = title
     this.author = author
     this.pages = pages
     this.already_read = already_read
-
+    console.log(this.index)
     this.info = function () {
       return {
         'title': title,
@@ -43,20 +45,64 @@ class Book {
   }
 }
 
-function addBookToLibrary() {
-  // take users input
-  // store the new book object in array
-  book = new Book()
+function get_form_data(){
+  json = {}
   dialog_form.querySelectorAll('input').forEach(function(d_input){
     let value = d_input.value;
     if (value === 'on'){
       value = d_input.checked ? true : false;
     }
-    book.applyData({[d_input.name]: value})
+    Object.assign(json, {[d_input.name]: value});
   })
-  myLibrary.push(book);
-    get_books()
+  return json;
 }
+
+function create_book(json){
+  return new Book(json.title, json.author, json.pages, json.already_read);
+}
+
+function create_card(book){
+  const card = document.createElement('div');
+  card.classList.add("card");
+  card.classList.add(`card_id_${book.index}`);
+  for (const k of Object.keys(book.info())){
+    const p = document.createElement('p');
+    p.textContent = `${k}: ${book[k]}`;
+    card.appendChild(p);
+  }
+  card.appendChild(create_remove_button(book));
+  return card;
+}
+
+function create_remove_button(book){
+  card = document.querySelector(`.card_id_${book.index}`)
+  remove_button = document.createElement('button');
+  remove_button.innerHTML = 'Remove';
+  remove_button.addEventListener("click", (e) => {
+    let button = e.target;
+    let card = button.parentNode;
+    card.remove();
+    remove_from_library_array(book.index);
+  })
+  return remove_button;
+}
+
+function remove_from_library_array(index){
+  for (let i=0; i<myLibrary.length; i++){
+    if (myLibrary[i].index === index){
+      myLibrary.splice(i, 1);
+      break;
+    } 
+  }
+}
+
+function addBookToLibrary() {
+  book = create_book(get_form_data());
+  myLibrary.push(book);
+  output_section.appendChild(create_card(book));
+}
+
+
 
 function get_books() {
   myLibrary.forEach(function (book) {
@@ -68,6 +114,15 @@ function get_books() {
       p.textContent = `${k}: ${book[k]}`;
       card.appendChild(p);
     }
+    remove_button = document.createElement('button');
+    remove_button.innerHTML = 'Remove';
+    remove_button.addEventListener("click", (e) => {
+      let button = e.target;
+      let card = button.parentNode;
+      console.log(card.querySelectorAll('input'));
+      card.remove();
+    })
+    card.appendChild(remove_button);
     output_section.appendChild(card);
   });
 }
