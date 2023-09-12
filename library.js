@@ -1,36 +1,36 @@
 #!/usr/bin/node
 
 output_section = document.querySelector(".output-section");
-input_section = document.querySelector(".input-section");
 dialog = document.querySelector("dialog");
 dialog_button = document.querySelector(".dialog-button");
 new_book_button = document.querySelector(".new-book-button");
+dialog_form = document.querySelector(".dialog-form")
 
 new_book_button.addEventListener("click", () => {
   dialog.showModal();
 })
 
-dialog_button.addEventListener("click", () => {
-  
+dialog_button.addEventListener("click", (e) => {
   output_section.innerHTML = '';
-  get_books();
+  addBookToLibrary();
+  e.preventDefault();
   dialog.close();
 })
 
 const myLibrary = [];
 
 class Book {
-  constructor(title, author, no_pages, already_read) {
+  constructor(title, author, pages, already_read) {
     this.title = title
     this.author = author
-    this.no_pages = no_pages
+    this.pages = pages
     this.already_read = already_read
 
     this.info = function () {
       return {
         'title': title,
         'author': author,
-        'no_pages': no_pages,
+        'pages': pages,
         'already_read': already_read,
       }
     }
@@ -38,13 +38,24 @@ class Book {
   type() {
     return 'Book'
   }
+  applyData(json){
+    Object.assign(this, json)
+  }
 }
 
-function addBookToLibrary(book) {
+function addBookToLibrary() {
   // take users input
   // store the new book object in array
-
+  book = new Book()
+  dialog_form.querySelectorAll('input').forEach(function(d_input){
+    let value = d_input.value;
+    if (value === 'on'){
+      value = d_input.checked ? true : false;
+    }
+    book.applyData({[d_input.name]: value})
+  })
   myLibrary.push(book);
+    get_books()
 }
 
 function get_books() {
@@ -57,22 +68,12 @@ function get_books() {
       p.textContent = `${k}: ${book[k]}`;
       card.appendChild(p);
     }
-
     output_section.appendChild(card);
-    console.log(book)
   });
 }
 
-
-const book1 = new Book('some title', 'famous author', 254, false);
-const book2 = new Book('some title2', 'famous author2', 234, true);
-console.log(book1.info());
-console.log(book1.type());
-console.log(book2.valueOf());
-
-console.log(Object.getPrototypeOf(book1) == Book.prototype);
-
-addBookToLibrary(book1);
-addBookToLibrary(book2);
-
+book1 = new Book('123', '213', 123, true)
+book2 = new Book('112323', '213123', 321, false)
+myLibrary.push(book1)
+myLibrary.push(book2)
 get_books();
