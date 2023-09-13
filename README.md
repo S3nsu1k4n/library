@@ -4,6 +4,8 @@ The Odin Project: Library
 
 # Introduction
 
+In this project, I am creating and designing a library implementation.
+
 # Demonstrated skills
 
 - git
