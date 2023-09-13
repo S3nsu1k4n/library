@@ -36,6 +36,10 @@ class Book {
         'already_read': already_read,
       }
     }
+    this.toggle_read = function(){
+      this.already_read = !this.already_read;
+      return this.already_read;
+    }
   }
   type() {
     return 'Book'
@@ -68,14 +72,15 @@ function create_card(book){
   for (const k of Object.keys(book.info())){
     const p = document.createElement('p');
     p.textContent = `${k}: ${book[k]}`;
+    p.classList.add([k]);
     card.appendChild(p);
   }
   card.appendChild(create_remove_button(book));
+  card.appendChild(create_read_toggle_button(book));
   return card;
 }
 
 function create_remove_button(book){
-  card = document.querySelector(`.card_id_${book.index}`)
   remove_button = document.createElement('button');
   remove_button.innerHTML = 'Remove';
   remove_button.addEventListener("click", (e) => {
@@ -85,6 +90,20 @@ function create_remove_button(book){
     remove_from_library_array(book.index);
   })
   return remove_button;
+}
+
+function create_read_toggle_button(book){
+  toggle_button = document.createElement('button');
+  toggle_button.innerHTML = 'Read'
+  toggle_button.addEventListener('click', (e) => {
+    let button = e.target;
+    let card = button.parentNode;
+    input = card.querySelector('.already_read');
+    console.log(input)
+    book.toggle_read();
+    input.value = input.innerHTML = `already_read: ${book.already_read}`;
+  })
+  return toggle_button;
 }
 
 function remove_from_library_array(index){
@@ -101,34 +120,3 @@ function addBookToLibrary() {
   myLibrary.push(book);
   output_section.appendChild(create_card(book));
 }
-
-
-
-function get_books() {
-  myLibrary.forEach(function (book) {
-    // display content on page
-    const card = document.createElement('div');
-    card.classList.add("card")
-    for (const k of Object.keys(book.info())){
-      const p = document.createElement('p');
-      p.textContent = `${k}: ${book[k]}`;
-      card.appendChild(p);
-    }
-    remove_button = document.createElement('button');
-    remove_button.innerHTML = 'Remove';
-    remove_button.addEventListener("click", (e) => {
-      let button = e.target;
-      let card = button.parentNode;
-      console.log(card.querySelectorAll('input'));
-      card.remove();
-    })
-    card.appendChild(remove_button);
-    output_section.appendChild(card);
-  });
-}
-
-book1 = new Book('123', '213', 123, true)
-book2 = new Book('112323', '213123', 321, false)
-myLibrary.push(book1)
-myLibrary.push(book2)
-get_books();
